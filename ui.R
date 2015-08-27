@@ -15,7 +15,7 @@ $(document).ready(function() {
 
     tags$head(tags$link(rel="stylesheet", type="text/css", href="shiny.css")),
 
-    titlePanel("CPSC 240 -- Level tracker"),
+    titlePanel("CPSC 240 -- Scoreboard"),
 
     mainPanel(
         tabsetPanel(
@@ -31,7 +31,7 @@ $(document).ready(function() {
                 actionButton("addchar",label="Begin adventure!"),
                 textOutput("msg")
             ),
-            selected="New adventurer"
+            selected="Levels"
         )
     )
 ))
