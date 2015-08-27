@@ -28,8 +28,10 @@ compute.level <- function(xp) {
         db.src <- src_mysql("stephen",user="stephen",password="davies4ever")
         chars <- collect(tbl(db.src, "chars"))
         xp <- collect(tbl(db.src, "xp"))
+        secret <- collect(tbl(db.src, "secret"))
         display <- inner_join(chars,xp,by=c("charname"="username"))
-        if (!is.null(input$app_hash) && input$app_hash == "#wheeze") {
+        if (!is.null(input$app_hash) && input$app_hash == paste0("#",
+            secret[1,1])) {
             display <- display %>% group_by(realname)
         } else {
             display <- display %>% group_by(charname)
