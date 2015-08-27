@@ -5,6 +5,14 @@ source("db.R")
 
 shinyUI(fluidPage(
 
+tags$head(
+      tags$script("
+$(document).ready(function() {
+  $('#app_hash').val(window.location.hash);
+});", type = 'text/javascript')
+    ),
+    tags$input(id = 'app_hash', type = 'text', style = 'display:none;'),
+
     tags$head(tags$link(rel="stylesheet", type="text/css", href="shiny.css")),
 
     titlePanel("CPSC 240 -- Level tracker"),

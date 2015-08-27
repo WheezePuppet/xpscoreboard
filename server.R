@@ -28,10 +28,16 @@ compute.level <- function(xp) {
         db.src <- src_mysql("stephen",user="stephen",password="davies4ever")
         chars <- collect(tbl(db.src, "chars"))
         xp <- collect(tbl(db.src, "xp"))
-        display <- inner_join(chars,xp,by=c("charname"="username")) %>% 
-            group_by(charname) %>% 
+        display <- inner_join(chars,xp,by=c("charname"="username"))
+        if (!is.null(input$app_hash) && input$app_hash == "#wheeze") {
+            display <- display %>% group_by(realname)
+        } else {
+            display <- display %>% group_by(charname)
+        }
+        display <- display %>% 
             summarize(Level=compute.level(sum(xp)), XP=sum(xp), 
-                "Most recent experience"=max(thetime)) %>%
+            "Most recent experience"=tag[thetime==max(thetime)],
+            "Entered"=max(thetime)) %>%
             arrange(desc(XP))
         xtable(as.data.frame(display))
     })
