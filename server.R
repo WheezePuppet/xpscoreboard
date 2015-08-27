@@ -6,7 +6,20 @@ library(xtable)
 shinyServer(function(input,output,session) {
 
 compute.level <- function(xp) {
-    if (xp < 5) { return("Suck") } else { return("nice") }
+    levels <- c("Dungeon Master"=1200,
+                "Master Adventurer"=1100,
+                "Wizard"=1050,
+                "Master"=950,
+                "Adventurer"=900,
+                "Junior Adventurer"=850,
+                "Novice Adventurer"=800,
+                "Amateur Adventurer"=750,
+                "Inferior Adventurer"=700,
+                "Deficient Adventurer"=600,
+                "Inadequate Adventurer"=500,
+                "Non-Adventurer"=0)
+                
+    names(levels[xp > levels][1])
 }
 
     output$xpPlot <- renderTable({
@@ -16,7 +29,8 @@ compute.level <- function(xp) {
         xp <- collect(tbl(db.src, "xp"))
         display <- inner_join(chars,xp,by=c("charname"="username")) %>% 
             group_by(charname) %>% 
-            summarize(XP=sum(xp), compute.level(XP), latest=max(thetime)) %>%
+            summarize(XP=sum(xp), Level=compute.level(XP), 
+                "Most recent"=max(thetime)) %>%
             arrange(desc(XP))
         xtable(as.data.frame(display))
     })
