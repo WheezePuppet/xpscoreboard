@@ -50,6 +50,10 @@ compute.level <- function(xp) {
         } else {
             isolate({
                 tryCatch({
+                    if (length(grep("^([[:alpha:]]|[[:digit:]]| )*$",
+                        c(input$realname, input$charname))) != 2) {
+                        stop("(Only numbers and digits, please!)")
+                    }
                     dbGetQuery(get.connection(),
                         paste0("insert into chars values (",
                         "'",input$realname,"',",
