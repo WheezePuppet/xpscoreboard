@@ -3,29 +3,32 @@ library(shiny)
 library(dplyr)
 library(xtable)
 
+source("mysql_config.R")
+
 shinyServer(function(input,output,session) {
 
-compute.level <- function(xp) {
-    levels <- c("Dungeon Master"=1200,
-                "Master Adventurer"=1100,
-                "Wizard"=1050,
-                "Master"=950,
-                "Adventurer"=900,
-                "Junior Adventurer"=850,
-                "Novice Adventurer"=800,
-                "Amateur Adventurer"=750,
-                "Inferior Adventurer"=700,
-                "Deficient Adventurer"=600,
-                "Inadequate Adventurer"=500,
-                "n00b"=0)
-                
-    names(levels[xp > levels][1])
-}
+    compute.level <- function(xp) {
+        levels <- c("Dungeon Master"=1200,
+                    "Master Adventurer"=1100,
+                    "Wizard"=1050,
+                    "Master"=950,
+                    "Adventurer"=900,
+                    "Junior Adventurer"=850,
+                    "Novice Adventurer"=800,
+                    "Amateur Adventurer"=750,
+                    "Inferior Adventurer"=700,
+                    "Deficient Adventurer"=600,
+                    "Inadequate Adventurer"=500,
+                    "n00b"=0)
+                    
+        names(levels[xp > levels][1])
+    }
 
     output$xpPlot <- renderTable({
 
         input$addchar
-        db.src <- src_mysql("stephen",user="stephen",password="davies4ever")
+        db.src <- src_mysql(mysql.db.name,user=mysql.user,
+            password=mysql.password)
         chars <- collect(tbl(db.src, "chars"))
         xp <- collect(tbl(db.src, "xp"))
         secret <- collect(tbl(db.src, "secret"))
