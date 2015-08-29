@@ -57,12 +57,12 @@ shinyServer(function(input,output,session) {
                         c(input$realname, input$charname))) != 2) {
                         stop("(Only numbers and digits, please!)")
                     }
-                    dbGetQuery(get.connection(),
+                    dbGetQuery(get.connection(TRUE),
                         paste0("insert into chars values (",
                         "'",input$realname,"',",
                         "'",input$charname,"')")
                     )
-                    dbGetQuery(get.connection(),
+                    dbGetQuery(get.connection(TRUE),
                         paste0("insert into xp values (",
                         "'",input$charname,"',1,'sign-up',now())")
                     )

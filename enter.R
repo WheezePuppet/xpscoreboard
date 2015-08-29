@@ -21,7 +21,7 @@ xp <- function(partial.realname, pts=1, tag="misc") {
                 partial.realname, "."))
         }
         charname <- chars[grep(partial.realname,chars$realname),"charname"]
-        dbGetQuery(get.connection(),
+        dbGetQuery(get.connection(TRUE),
             paste0("insert into xp values (",
             "'",charname,"',",pts,",'",tag,"',now())")
         )
