@@ -57,15 +57,17 @@ shinyServer(function(input,output,session) {
                         c(input$realname, input$charname))) != 2) {
                         stop("(Only numbers and digits, please!)")
                     }
-                    dbGetQuery(get.connection(TRUE),
+                    conn <- get.connection(TRUE)
+                    dbGetQuery(conn,
                         paste0("insert into chars values (",
                         "'",input$realname,"',",
                         "'",input$charname,"')")
                     )
-                    dbGetQuery(get.connection(TRUE),
+                    dbGetQuery(conn,
                         paste0("insert into xp values (",
                         "'",input$charname,"',1,'sign-up',now())")
                     )
+                    dbDisconnect(conn)
                     "Account created!"
                 }, error=function(e) paste0("Could not create account! ",
                     conditionMessage(e)))
