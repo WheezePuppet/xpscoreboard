@@ -21,7 +21,7 @@ shinyServer(function(input,output,session) {
                     "Inadequate Adventurer"=500,
                     "n00b"=0)
                     
-        names(levels[xp > levels][1])
+        names(levels[xp >= levels][1])
     }
 
     output$xpPlot <- renderTable({
