@@ -7,6 +7,9 @@ source("mysql_config.R")
 
 shinyServer(function(input,output,session) {
 
+    INFLATION.ADJUSTMENT <- 0
+    MAX.OUT.PTS <- 1100
+
     compute.level <- function(xp) {
         levels <- c("Dungeon Master"=1200,
                     "Master Adventurer"=1100,
@@ -22,6 +25,14 @@ shinyServer(function(input,output,session) {
                     "n00b"=0)
                     
         names(levels[xp >= levels][1])
+    }
+
+    compute.score <- function(pts) {
+        if (pts+INFLATION.ADJUSTMENT >= MAX.OUT.PTS) {
+            return("enough")
+        } else {
+            return(as.character(as.integer(pts)+INFLATION.ADJUSTMENT))
+        }
     }
 
     output$xpPlot <- renderTable({
@@ -40,10 +51,12 @@ shinyServer(function(input,output,session) {
             display <- display %>% group_by(charname)
         }
         display <- display %>% 
-            summarize(Level=compute.level(sum(xp)), XP=sum(xp), 
+            summarize(Level=compute.level(sum(xp)), XP=compute.score(sum(xp)), 
             "Most recent experience"=tag[thetime==max(thetime)],
-            "Entered"=max(thetime)) %>%
-            arrange(desc(XP))
+            "Entered"=max(thetime))
+        display <- rbind(filter(display, XP=="enough"),
+            filter(display, XP!="enough") %>% arrange(desc(as.integer(XP))))
+            
         xtable(as.data.frame(display))
     })
 
