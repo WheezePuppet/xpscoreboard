@@ -54,8 +54,9 @@ shinyServer(function(input,output,session) {
             summarize(Level=compute.level(sum(xps)), XP=compute.score(sum(xps)), 
             "Most recent experience"=tag[thetime==max(thetime)],
             "Entered"=max(thetime))
-        display <- rbind(filter(display, XP=="enough"),
-            filter(display, XP!="enough") %>% arrange(desc(as.integer(XP))))
+        display <- rbind(dplyr::filter(display, XP=="enough"),
+            dplyr::filter(display, XP!="enough") %>% 
+            arrange(desc(as.integer(XP))))
             
         xtable(as.data.frame(display))
     })
