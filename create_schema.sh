@@ -1,6 +1,6 @@
 # Only run this file after setting mysql.db.table.suffix and other variables
 # in mysql_config.R.
-if grep -q "my\.table\.suffix" mysql_config.R ; then
+if grep -q "mytablesuffix" mysql_config.R ; then
     echo "Set mysql.db.table.suffix in mysql_config.R first."
     exit 1
 fi
