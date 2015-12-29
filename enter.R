@@ -23,7 +23,7 @@ xp <- function(partial.realname, pts=1, tag="misc") {
         }
         charname <- 
             chars[grep(partial.realname,chars$realname),"charname"][[1]][1]
-        old.num.rows <- nrow(filter(xp,username==charname,xp==pts,tag==tag))
+        old.num.rows <- nrow(filter(xp,username==charname,xps==pts,tag==tag))
         conn <- get.connection(TRUE)
         dbGetQuery(conn,
             paste0("insert into xp values (",
@@ -31,7 +31,7 @@ xp <- function(partial.realname, pts=1, tag="misc") {
         )
         dbDisconnect(conn)
         xp <- collect(tbl(db.src, "xp"))
-        new.num.rows <- nrow(filter(xp,username==charname,xp==pts,tag==tag))
+        new.num.rows <- nrow(filter(xp,username==charname,xps==pts,tag==tag))
         if (new.num.rows == old.num.rows + 1) {
             return("Success.")
         } else {

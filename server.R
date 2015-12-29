@@ -40,8 +40,8 @@ shinyServer(function(input,output,session) {
         input$addchar
         db.src <- src_mysql(mysql.db.name,user=mysql.user,
             password=mysql.password)
-        chars <- collect(tbl(db.src, "chars"))
-        xp <- collect(tbl(db.src, "xp"))
+        chars <- collect(tbl(db.src, paste0("chars_", mysql.db.table.suffix)))
+        xp <- collect(tbl(db.src, paste0("xp_", mysql.db.table.suffix)))
         secret <- collect(tbl(db.src, "secret"))
         display <- inner_join(chars,xp,by=c("charname"="username"))
         if (!is.null(input$app_hash) && input$app_hash == paste0("#",
@@ -51,7 +51,7 @@ shinyServer(function(input,output,session) {
             display <- display %>% group_by(charname)
         }
         display <- display %>% 
-            summarize(Level=compute.level(sum(xp)), XP=compute.score(sum(xp)), 
+            summarize(Level=compute.level(sum(xps)), XP=compute.score(sum(xps)), 
             "Most recent experience"=tag[thetime==max(thetime)],
             "Entered"=max(thetime))
         display <- rbind(filter(display, XP=="enough"),
@@ -72,12 +72,14 @@ shinyServer(function(input,output,session) {
                     }
                     conn <- get.connection(TRUE)
                     dbGetQuery(conn,
-                        paste0("insert into chars values (",
+                        paste0("insert into chars_", mysql.db.table.suffix,
+                        " values (",
                         "'",input$realname,"',",
                         "'",input$charname,"')")
                     )
                     dbGetQuery(conn,
-                        paste0("insert into xp values (",
+                        paste0("insert into xp_", mysql.db.table.suffix,
+                        " values (",
                         "'",input$charname,"',1,'sign-up',now())")
                     )
                     dbDisconnect(conn)

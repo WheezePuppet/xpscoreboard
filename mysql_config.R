@@ -1,6 +1,7 @@
 
 # MySQL configuration.
 mysql.db.name <- "stephen"
+mysql.db.table.suffix <- "mytablesuffix"
 mysql.user <- "joeblow"
 mysql.password <- "zepassword"
 
