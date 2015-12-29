@@ -42,7 +42,7 @@ shinyServer(function(input,output,session) {
             password=mysql.password)
         chars <- collect(tbl(db.src, paste0("chars_", mysql.db.table.suffix)))
         xp <- collect(tbl(db.src, paste0("xp_", mysql.db.table.suffix)))
-        secret <- collect(tbl(db.src, "secret"))
+        secret <- collect(tbl(db.src, paste0("secret_", mysql.db.table.suffix)))
         display <- inner_join(chars,xp,by=c("charname"="username"))
         if (!is.null(input$app_hash) && input$app_hash == paste0("#",
             secret[1,1])) {

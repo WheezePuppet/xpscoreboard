@@ -11,8 +11,8 @@ xp <- function(partial.realname, pts=1, tag="misc") {
     tryCatch({
         db.src <- src_mysql(mysql.db.name,user=mysql.user,
             password=mysql.password)
-        chars <- collect(tbl(db.src, "chars"))
-        xp <- collect(tbl(db.src, "xp"))
+        chars <- collect(tbl(db.src, paste0("chars_",mysql.db.table.suffix)))
+        xpt <- collect(tbl(db.src, paste0("xp_",mysql.db.table.suffix)))
         if (length(grep(partial.realname,chars$realname)) > 1) {
             stop(paste0("More than one realname match for ",
                 partial.realname, "."))
@@ -23,15 +23,17 @@ xp <- function(partial.realname, pts=1, tag="misc") {
         }
         charname <- 
             chars[grep(partial.realname,chars$realname),"charname"][[1]][1]
-        old.num.rows <- nrow(filter(xp,username==charname,xps==pts,tag==tag))
+        old.num.rows <- nrow(dplyr::filter(xpt,username==charname,
+                xps==pts,tag==tag))
         conn <- get.connection(TRUE)
         dbGetQuery(conn,
-            paste0("insert into xp values (",
+            paste0("insert into xp_",mysql.db.table.suffix," values (",
             "'",charname,"',",pts,",'",tag,"',now())")
         )
         dbDisconnect(conn)
-        xp <- collect(tbl(db.src, "xp"))
-        new.num.rows <- nrow(filter(xp,username==charname,xps==pts,tag==tag))
+        xpt <- collect(tbl(db.src, paste0("xp_",mysql.db.table.suffix)))
+        new.num.rows <- nrow(dplyr::filter(xpt,username==charname,
+                xps==pts,tag==tag))
         if (new.num.rows == old.num.rows + 1) {
             return("Success.")
         } else {
