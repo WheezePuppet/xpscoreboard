@@ -31,6 +31,12 @@ $(document).ready(function() {
                 actionButton("addchar",label="Begin adventure!"),
                 textOutput("msg")
             ),
+            tabPanel("My XP",
+                h2("My XP"),
+                uiOutput("myxpstuff"),
+                tableOutput("myxpPlot"),
+                textOutput("myxpmsg")
+            ),
             selected="Levels"
         )
     )

@@ -90,4 +90,68 @@ shinyServer(function(input,output,session) {
             })
         }
     })
+
+    output$myxpstuff <- renderUI({
+        div(
+            textInput("myxprealname",
+                label="Your real life name (e.g., Emilia Clarke)",
+                value=""),
+            textInput("myxpcharname",
+                label="Your character name (e.g., daenerys4prez)",
+                value=""),
+            actionButton("viewxp",label="View XP")
+        )
+    })
+
+    observeEvent(input$viewxp, {
+        
+        if (nchar(input$myxprealname) == 0 ||
+            nchar(input$myxpcharname) == 0) {
+            output$myxpmsg <- renderText({ 
+                "Enter your real name and character name."
+            })
+            return(NULL)
+        }
+
+        db.src <- src_mysql(mysql.db.name,user=mysql.user,
+            password=mysql.password)
+        chars <- collect(tbl(db.src, paste0("chars_", 
+            mysql.db.table.suffix)))
+        xp <- collect(tbl(db.src, paste0("xp_", mysql.db.table.suffix)))
+        display <- inner_join(chars,xp,by=c("charname"="username")) %>%
+            dplyr::filter(charname==input$myxpcharname, 
+                   realname==input$myxprealname) %>%
+            arrange(thetime) %>%
+            transmute(Experience=tag,XP=xps,Entered=thetime)
+
+        if (nrow(display) == 0) {
+            if (nrow(chars %>% dplyr::filter(charname==input$myxpcharname)) 
+                                                                        == 0){
+                output$myxpmsg <- renderText({ 
+                    paste0("No such character '",input$myxpcharname,"'.")
+                })
+            } else if (nrow(chars %>% 
+                    dplyr::filter(realname==input$myxprealname)) 
+                                                                        == 0){
+                output$myxpmsg <- renderText({ 
+                    paste0("No such student '",input$myxprealname,"'.")
+                })
+            } else {
+                output$myxpmsg <- renderText({ 
+                    "Wrong character name!"
+                })
+            }
+            return(NULL)
+        }
+
+        output$myxpPlot <- renderTable({
+            xtable(as.data.frame(display))
+        })
+
+        output$myxpstuff <- renderUI({
+            div(
+                h3(paste("Experience for",input$myxprealname))
+            )
+        })
+    })
 })
