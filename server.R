@@ -27,6 +27,23 @@ shinyServer(function(input,output,session) {
         names(levels[xp >= levels][1])
     }
 
+    compute.grade <- function(xp) {
+        levels <- c("A+"=600,
+                    "A"=580,
+                    "A-"=550,
+                    "B+"=500,
+                    "B"=470,
+                    "B-"=430,
+                    "C+"=400,
+                    "C"=350,
+                    "C-"=320,
+                    "D+"=300,
+                    "D"=250,
+                    "F"=0)
+                    
+        names(levels[xp >= levels][1])
+    }
+
     compute.score <- function(pts) {
         if (pts+INFLATION.ADJUSTMENT >= MAX.OUT.PTS) {
             return("enough")
@@ -47,13 +64,20 @@ shinyServer(function(input,output,session) {
         if (!is.null(input$app_hash) && input$app_hash == paste0("#",
             secret[1,1])) {
             display <- display %>% group_by(realname)
+            display <- display %>% 
+                summarize(Grade=compute.grade(sum(xps)), 
+                Level=compute.level(sum(xps)), 
+                XP=compute.score(sum(xps)), 
+                "Most recent experience"=tag[thetime==max(thetime)],
+                "Entered"=max(thetime))
         } else {
             display <- display %>% group_by(charname)
+            display <- display %>% 
+                summarize(Level=compute.level(sum(xps)), 
+                XP=compute.score(sum(xps)), 
+                "Most recent experience"=tag[thetime==max(thetime)],
+                "Entered"=max(thetime))
         }
-        display <- display %>% 
-            summarize(Level=compute.level(sum(xps)), XP=compute.score(sum(xps)), 
-            "Most recent experience"=tag[thetime==max(thetime)],
-            "Entered"=max(thetime))
         display <- rbind(dplyr::filter(display, XP=="enough"),
             dplyr::filter(display, XP!="enough") %>% 
             arrange(desc(as.integer(XP))))
