@@ -8,6 +8,7 @@ source("mysql_config.R")
 
 xp <- function(partial.realname, pts=1, tag="misc") {
     require(RMySQL)
+    pts <- ceiling(pts)
     tryCatch({
         db.src <- src_mysql(mysql.db.name,user=mysql.user,
             password=mysql.password)
@@ -37,7 +38,8 @@ xp <- function(partial.realname, pts=1, tag="misc") {
         if (new.num.rows == old.num.rows + 1) {
             return("Success.")
         } else {
-            return("Nothing written!")
+            return(paste0("Nothing written! (",new.num.rows,"!=",
+                old.num.rows,"+1)"))
         }
     }, error=function(e) e)
 }
