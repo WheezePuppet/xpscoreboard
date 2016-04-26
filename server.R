@@ -129,36 +129,51 @@ shinyServer(function(input,output,session) {
 
     observeEvent(input$viewxp, {
         
-        if (nchar(input$myxprealname) == 0 ||
-            nchar(input$myxpcharname) == 0) {
+        db.src <- src_mysql(mysql.db.name,user=mysql.user,
+            password=mysql.password)
+        secret <- collect(tbl(db.src, paste0("secret_", 
+            mysql.db.table.suffix)))
+        chars <- collect(tbl(db.src, paste0("chars_", 
+            mysql.db.table.suffix)))
+        xp <- collect(tbl(db.src, paste0("xp_", mysql.db.table.suffix)))
+
+        entered.real.name <- input$myxprealname
+        entered.char.name <- input$myxpcharname
+
+        display <- inner_join(chars,xp,by=c("charname"="username"))
+        if (!is.null(input$app_hash) && input$app_hash == paste0("#",
+            secret[1,1])) {
+
+            entered.char.name <- (chars %>%
+                dplyr::filter(realname==entered.real.name) %>% 
+                select(charname))[[1]]
+        }
+
+        if (nchar(entered.real.name) == 0 ||
+            nchar(entered.char.name) == 0) {
             output$myxpmsg <- renderText({ 
                 "Enter your real name and character name."
             })
             return(NULL)
         }
 
-        db.src <- src_mysql(mysql.db.name,user=mysql.user,
-            password=mysql.password)
-        chars <- collect(tbl(db.src, paste0("chars_", 
-            mysql.db.table.suffix)))
-        xp <- collect(tbl(db.src, paste0("xp_", mysql.db.table.suffix)))
         display <- inner_join(chars,xp,by=c("charname"="username")) %>%
-            dplyr::filter(charname==input$myxpcharname, 
-                   realname==input$myxprealname) %>%
+            dplyr::filter(charname==entered.char.name,
+                   realname==entered.real.name) %>%
             arrange(thetime) %>%
             transmute(Experience=tag,XP=xps,Entered=thetime)
 
         if (nrow(display) == 0) {
-            if (nrow(chars %>% dplyr::filter(charname==input$myxpcharname)) 
+            if (nrow(chars %>% dplyr::filter(charname==entered.char.name)) 
                                                                         == 0){
                 output$myxpmsg <- renderText({ 
-                    paste0("No such character '",input$myxpcharname,"'.")
+                    paste0("No such character '",entered.char.name,"'.")
                 })
             } else if (nrow(chars %>% 
-                    dplyr::filter(realname==input$myxprealname)) 
+                    dplyr::filter(realname==entered.real.name)) 
                                                                         == 0){
                 output$myxpmsg <- renderText({ 
-                    paste0("No such student '",input$myxprealname,"'.")
+                    paste0("No such student '",entered.real.name,"'.")
                 })
             } else {
                 output$myxpmsg <- renderText({ 
