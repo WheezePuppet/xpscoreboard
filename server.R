@@ -65,18 +65,19 @@ shinyServer(function(input,output,session) {
             secret[1,1])) {
             display <- display %>% group_by(realname)
             display <- display %>% 
-                summarize(Grade=compute.grade(sum(xps)), 
+                summarize(Name=realname,
+                Character=charname,Grade=compute.grade(sum(xps)), 
                 Level=compute.level(sum(xps)), 
                 XP=compute.score(sum(xps)), 
                 "Most recent experience"=tag[thetime==max(thetime)],
-                "Entered"=max(thetime))
+                "Entered"=max(thetime)) %>% select(-realname)
         } else {
             display <- display %>% group_by(charname)
             display <- display %>% 
-                summarize(Level=compute.level(sum(xps)), 
+                summarize(Name=charname,Level=compute.level(sum(xps)), 
                 XP=compute.score(sum(xps)), 
                 "Most recent experience"=tag[thetime==max(thetime)],
-                "Entered"=max(thetime))
+                "Entered"=max(thetime)) %>% select(-charname)
         }
         display <- rbind(dplyr::filter(display, XP=="enough"),
             dplyr::filter(display, XP!="enough") %>% 
