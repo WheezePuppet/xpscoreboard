@@ -11,19 +11,66 @@ shinyServer(function(input,output,session) {
     MAX.OUT.PTS <- 1100
 
     compute.level <- function(xp) {
-        levels <- c("Dungeon Master"=1200,
-                    "Master Adventurer"=1100,
-                    "Wizard"=1050,
-                    "Master"=950,
-                    "Adventurer"=900,
-                    "Junior Adventurer"=850,
-                    "Novice Adventurer"=800,
-                    "Amateur Adventurer"=750,
-                    "Inferior Adventurer"=700,
-                    "Deficient Adventurer"=600,
-                    "Inadequate Adventurer"=500,
-                    "n00b"=0)
-                    
+        levels <- c("Agent Smith"=650,
+                    "Ava"=600,
+                    "Ash"=560,
+                    "BB-8"=530,
+                    "Bishop"=500,
+                    "Baymax"=470,
+                    "C-3PO"=440,
+                    "Cortana"=420,
+                    "Cylon"=400,
+                    "R2-D2"=380,
+                    "Data"=360,
+                    "Dolores"=340,
+                    "Terminator"=320,
+                    "HAL-9000"=300,
+                    "Ultron"=280,
+                    "Maeve"=260,
+                    "K-2SO"=240,
+                    "#6"=220,
+                    "TARS"=200,
+                    "J.A.R.V.I.S."=175,
+                    "Rachael"=150,
+                    "L3-37"=125,
+                    "Eve"=100,
+                    "Wall-E"=75,
+                    "Rosie the Maid"=50,
+                    "Power droid"=25,
+                    "Dead battery"=0)
+
+        names(levels[xp >= levels][1])
+    }
+
+    compute.image <- function(xp) {
+        levels <- c("agentsmith.png"=650,
+                    "ava.jpg"=600,
+                    "ash.jpg"=560,
+                    "bb8.png"=530,
+                    "bishop.jpg"=500,
+                    "baymax.png"=470,
+                    "c3po.jpg"=440,
+                    "cortana.png"=420,
+                    "cylon.png"=400,
+                    "r2d2.png"=380,
+                    "data.jpg"=360,
+                    "dolores.jpg"=340,
+                    "terminator.jpg"=320,
+                    "hal9000.png"=300,
+                    "ultron.jpg"=280,
+                    "maeve.jpg"=260,
+                    "k2so.png"=240,
+                    "number6.png"=220,
+                    "tars.jpg"=200,
+                    "jarvis.jpg"=175,
+                    "rachael.jpg"=150,
+                    "l337.jpg"=125,
+                    "eve.jpg"=100,
+                    "walle.png"=75,
+                    "rosie.png"=50,
+                    "powerDroid.png"=25,
+                    "deadBattery.png"=0)
+
         names(levels[xp >= levels][1])
     }
 
@@ -63,28 +110,28 @@ shinyServer(function(input,output,session) {
         display <- inner_join(chars,xp,by=c("charname"="username"))
         if (!is.null(input$app_hash) && input$app_hash == paste0("#",
             secret[1,1])) {
-            display <- display %>% group_by(realname)
-            display <- display %>% 
-                summarize(Name=realname,
-                Character=charname,Grade=compute.grade(sum(xps)), 
-                Level=compute.level(sum(xps)), 
-                XP=compute.score(sum(xps)), 
+            display <- display %>% group_by(realname,charname)
+            display <- display %>%
+                summarize(Grade=compute.grade(sum(xps)),
+                Level=paste0("<img width=44 src=\"http://cs.umw.edu/~stephen/cpsc415/", compute.image(sum(xps)), "\" /> &nbsp; ",compute.level(sum(xps))),
+                XP=compute.score(sum(xps)),
                 "Most recent experience"=tag[thetime==max(thetime)],
-                "Entered"=max(thetime)) %>% select(-realname)
+                "Entered"=max(thetime)) %>% rename(Name=realname)
         } else {
             display <- display %>% group_by(charname)
-            display <- display %>% 
-                summarize(Name=charname,Level=compute.level(sum(xps)), 
-                XP=compute.score(sum(xps)), 
+            display <- display %>%
+                summarize(
+                Level=paste0("<img width=44 src=\"http://cs.umw.edu/~stephen/cpsc415/", compute.image(sum(xps)), "\" /> &nbsp; ",compute.level(sum(xps))),
+                XP=compute.score(sum(xps)),
                 "Most recent experience"=tag[thetime==max(thetime)],
-                "Entered"=max(thetime)) %>% select(-charname)
+                "Entered"=max(thetime)) %>% rename(Name=charname)
         }
         display <- rbind(dplyr::filter(display, XP=="enough"),
-            dplyr::filter(display, XP!="enough") %>% 
+            dplyr::filter(display, XP!="enough") %>%
             arrange(desc(as.integer(XP))))
-            
+
         xtable(as.data.frame(display))
-    })
+    }, sanitize.text.function = function(x) x)
 
     output$msg <- renderText({
         if (input$addchar == 0) {
@@ -92,9 +139,9 @@ shinyServer(function(input,output,session) {
         } else {
             isolate({
                 tryCatch({
-                    if (length(grep("^([[:alpha:]]|[[:digit:]]| )*$",
+                    if (length(grep("^([[:alpha:]]|[[:digit:]]| |-)*$",
                         c(input$realname, input$charname))) != 2) {
-                        stop("(Only numbers and digits, please!)")
+                        stop("(Only numbers, digits, and hyphens please!)")
                     }
                     conn <- get.connection(TRUE)
                     dbGetQuery(conn,
