@@ -13,22 +13,22 @@ $(document).ready(function() {
     ),
     tags$input(id = 'app_hash', type = 'text', style = 'display:none;'),
 
-    tags$head(tags$link(rel="stylesheet", type="text/css", href="shiny.css")),
+    tags$head(tags$link(rel="stylesheet", type="text/css", href="326style.css")),
 
-    titlePanel("CPSC 240 -- Scoreboard"),
+    titlePanel(HTML("CPSC 326 &mdash; Scoreboard")),
 
     mainPanel(
         tabsetPanel(
             tabPanel("Levels", tableOutput("xpPlot")),
-            tabPanel("New adventurer",
-                h2("Join the CPSC 240 quest!"),
+            tabPanel("New computer scientist",
+                h2("Join the CPSC 326 investigation!"),
                 textInput("realname",
-                    label="Your real life name (e.g., Emilia Clarke)",
+                    label=HTML("Your real life name (<i>e.g.</i>, Alonzo Church)"),
                     value=""),
                 textInput("charname",
-                    label="Your character name (e.g., daenerys4prez)",
+                    label=HTML("Your screen name (<i>e.g.</i>, lambdaCalc4me)"),
                     value=""),
-                actionButton("addchar",label="Begin adventure!"),
+                actionButton("addchar",label="Begin journey!"),
                 textOutput("msg")
             ),
             tabPanel("My XP",
