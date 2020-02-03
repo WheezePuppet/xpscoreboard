@@ -143,7 +143,7 @@ shinyServer(function(input,output,session) {
             display <- display %>% group_by(realname,charname)
             display <- display %>%
                 summarize(Grade=compute.grade(sum(xps)),
-                Levrereel=paste0("<a href=\"https://en.wikipedia.org/wiki/",
+                Level=paste0("<a href=\"https://en.wikipedia.org/wiki/",
                     compute.url(sum(xps)),
                     "\"><img width=44 src=\"http://stephendavies.org/cpsc326/",
                     compute.image(sum(xps)), "\" /></a> &nbsp; ",
@@ -152,7 +152,7 @@ shinyServer(function(input,output,session) {
                     compute.level(sum(xps)),
                     "</a>"),
                 XP=compute.score(sum(xps)),
-                "Most recent experience"=tag[thetime==max(thetime)],
+                "Most recent experience"=tag[thetime==max(thetime)][1],
                 "Entered"=max(thetime)) %>% rename(Name=realname)
         } else {
             display <- display %>% group_by(charname)
@@ -167,7 +167,7 @@ shinyServer(function(input,output,session) {
                     compute.level(sum(xps)),
                     "</a>"),
                 XP=compute.score(sum(xps)),
-                "Most recent experience"=tag[thetime==max(thetime)],
+                "Most recent experience"=tag[thetime==max(thetime)][1],
                 "Entered"=max(thetime)) %>% rename(Name=charname)
         }
         display <- rbind(dplyr::filter(display, XP=="enough"),
